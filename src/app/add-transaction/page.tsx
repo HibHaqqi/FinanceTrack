@@ -4,20 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import TransactionForm from '@/components/transaction-form';
 import { getWallets, getCategories } from '@/lib/data';
+import AppShell from '@/components/app-shell';
 
 export default async function AddTransactionPage() {
   const wallets = await getWallets();
   const categories = await getCategories();
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-muted/40 p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-2xl">
-        <Button asChild variant="ghost" className="mb-4">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Link>
-        </Button>
+    <AppShell>
         <Card>
           <CardHeader>
             <CardTitle>Add a New Transaction</CardTitle>
@@ -29,7 +23,6 @@ export default async function AddTransactionPage() {
             <TransactionForm wallets={wallets} categories={categories} />
           </CardContent>
         </Card>
-      </div>
-    </div>
+    </AppShell>
   );
 }
