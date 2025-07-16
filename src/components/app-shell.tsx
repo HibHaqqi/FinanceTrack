@@ -1,54 +1,23 @@
-import Link from 'next/link';
-import { Home, PlusCircle } from 'lucide-react';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarInset,
-} from '@/components/ui/sidebar';
-import Logo from './logo';
-import Header from './header';
+import DashboardClient from '@/components/dashboard-client';
+import { getTransactions, getWallets, getCategories } from '@/lib/data';
+import Header from '@/components/header';
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default async function DashboardPage() {
+  // In a real application, you would fetch this data based on the logged-in user.
+  const transactions = await getTransactions();
+  const wallets = await getWallets();
+  const categories = await getCategories();
+
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <Logo />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <Link href="/">
-                <SidebarMenuButton>
-                  <Home />
-                  Dashboard
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/add-transaction">
-                <SidebarMenuButton>
-                  <PlusCircle />
-                  Add Transaction
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>{/* Can add elements to footer */}</SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <div className="flex flex-col">
-          <Header />
-          <main className="flex-1 p-4 sm:p-6 md:p-8">{children}</main>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="flex min-h-screen w-full flex-col">
+      <Header />
+      <main className="flex-1 p-4 sm:p-6 md:p-8">
+        <DashboardClient
+          transactions={transactions}
+          wallets={wallets}
+          categories={categories}
+        />
+      </main>
+    </div>
   );
 }
