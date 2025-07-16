@@ -27,7 +27,7 @@ export default function RecentTransactions({
   const getCategoryName = (id: string) =>
     categories.find((c) => c.id === id)?.name || 'N/A';
   
-  const sortedTransactions = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 10);
+  const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <Card className="h-full">
@@ -45,41 +45,49 @@ export default function RecentTransactions({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedTransactions.map((tx) => (
-                <TableRow key={tx.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                       {tx.type === 'income' ? (
-                        <ArrowUpCircle className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <ArrowDownCircle className="h-5 w-5 text-red-500" />
-                      )}
-                      <div>
-                        <div className="font-medium">{tx.description}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(tx.date).toLocaleDateString()}
+              {sortedTransactions.length > 0 ? (
+                sortedTransactions.map((tx) => (
+                  <TableRow key={tx.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                         {tx.type === 'income' ? (
+                          <ArrowUpCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <ArrowDownCircle className="h-5 w-5 text-red-500" />
+                        )}
+                        <div>
+                          <div className="font-medium">{tx.description}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(tx.date).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {getCategoryName(tx.categoryId)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell
-                    className={`text-right font-medium ${
-                      tx.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {tx.type === 'income' ? '+' : '-'}
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                    }).format(tx.amount)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {getCategoryName(tx.categoryId)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell
+                      className={`text-right font-medium ${
+                        tx.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      }`}
+                    >
+                      {tx.type === 'income' ? '+' : '-'}
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                      }).format(tx.amount)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center text-muted-foreground">
+                    No transactions for this period.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </ScrollArea>

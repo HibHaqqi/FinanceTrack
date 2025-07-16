@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import type { Transaction, Wallet, Category } from '@/lib/types';
 import SummaryCard from './summary-card';
 import CategoryChart from './category-chart';
+import BalanceChart from './balance-chart';
 import RecentTransactions from './recent-transactions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
@@ -19,15 +20,28 @@ export default function DashboardClient({
   wallets,
   categories,
 }: DashboardClientProps) {
-  const [selectedMonth, setSelectedMonth] = useState<string>((new Date().getMonth() + 1).toString());
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
   const filteredTransactions = useMemo(() => {
+    if (selectedMonth === 'all') {
+      return transactions.filter(tx => {
+        const txDate = new Date(tx.date);
+        return txDate.getFullYear() === parseInt(selectedYear);
+      });
+    }
     return transactions.filter(tx => {
       const txDate = new Date(tx.date);
       return txDate.getMonth() + 1 === parseInt(selectedMonth) && txDate.getFullYear() === parseInt(selectedYear);
     });
   }, [transactions, selectedMonth, selectedYear]);
+  
+  const allTimeTransactions = useMemo(() => {
+    return transactions.filter(tx => {
+        const txDate = new Date(tx.date);
+        return txDate.getFullYear() === parseInt(selectedYear);
+    })
+  }, [transactions, selectedYear])
 
   const { totalIncome, totalExpenses, balance } = useMemo(() => {
     let totalIncome = 0;
@@ -69,6 +83,7 @@ export default function DashboardClient({
   },[transactions]);
 
   const months = [
+    { value: 'all', label: 'All Months' },
     { value: '1', label: 'January' }, { value: '2', label: 'February' },
     { value: '3', label: 'March' }, { value: '4', label: 'April' },
     { value: '5', label: 'May' }, { value: '6', label: 'June' },
@@ -110,6 +125,11 @@ export default function DashboardClient({
         <SummaryCard title="Total Expenses" value={totalExpenses} iconName="TrendingDown" />
         <SummaryCard title="Overall Balance" value={balance} iconName="Wallet" />
       </div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+          <BalanceChart transactions={allTimeTransactions} />
+          <CategoryChart transactions={filteredTransactions} categories={categories} />
+      </div>
 
       <Separator />
 
@@ -131,13 +151,8 @@ export default function DashboardClient({
 
       <Separator />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="lg:col-span-4">
-           <CategoryChart transactions={filteredTransactions} categories={categories} />
-        </div>
-        <div className="lg:col-span-3">
-            <RecentTransactions transactions={filteredTransactions} categories={categories} wallets={wallets} />
-        </div>
+      <div className="grid gap-4">
+        <RecentTransactions transactions={filteredTransactions} categories={categories} wallets={wallets} />
       </div>
     </div>
   );
