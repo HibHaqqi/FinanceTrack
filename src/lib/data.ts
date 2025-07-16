@@ -4,6 +4,8 @@ export const wallets: Wallet[] = [
   { id: 'wallet-1', name: 'Main Bank Account' },
   { id: 'wallet-2', name: 'Credit Card' },
   { id: 'wallet-3', name: 'Savings' },
+  { id: 'wallet-4', name: 'Emergency Fund' },
+  { id: 'wallet-5', name: 'Vacation Fund' },
 ];
 
 export const categories: Category[] = [
@@ -98,6 +100,24 @@ export const transactions: Transaction[] = [
     categoryId: 'cat-8',
     walletId: 'wallet-2',
   },
+  {
+    id: 'txn-19',
+    type: 'income',
+    description: 'Interest',
+    amount: 15.00,
+    date: new Date(currentYear, currentMonth, 28),
+    categoryId: 'cat-8',
+    walletId: 'wallet-3',
+  },
+  {
+    id: 'txn-20',
+    type: 'income',
+    description: 'Vacation Saving',
+    amount: 200,
+    date: new Date(currentYear, currentMonth, 20),
+    categoryId: 'cat-8',
+    walletId: 'wallet-5',
+  },
 
   // Previous Month
   {
@@ -136,6 +156,15 @@ export const transactions: Transaction[] = [
     categoryId: 'cat-9',
     walletId: 'wallet-2',
   },
+  {
+    id: 'txn-21',
+    type: 'income',
+    description: 'Vacation Saving',
+    amount: 200,
+    date: new Date(currentYear, currentMonth - 1, 20),
+    categoryId: 'cat-8',
+    walletId: 'wallet-5',
+  },
 
   // Two Months Ago
   {
@@ -165,6 +194,15 @@ export const transactions: Transaction[] = [
     categoryId: 'cat-10',
     walletId: 'wallet-1',
   },
+  {
+    id: 'txn-22',
+    type: 'income',
+    description: 'Vacation Saving',
+    amount: 200,
+    date: new Date(currentYear, currentMonth - 2, 20),
+    categoryId: 'cat-8',
+    walletId: 'wallet-5',
+  },
     // Three Months Ago
   {
     id: 'txn-16',
@@ -192,6 +230,15 @@ export const transactions: Transaction[] = [
     date: new Date(currentYear, currentMonth - 3, 10),
     categoryId: 'cat-8',
     walletId: 'wallet-3',
+  },
+  {
+    id: 'txn-23',
+    type: 'income',
+    description: 'Emergency Fund',
+    amount: 100,
+    date: new Date(currentYear, currentMonth - 3, 25),
+    categoryId: 'cat-8',
+    walletId: 'wallet-4',
   },
 ];
 
