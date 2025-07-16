@@ -9,6 +9,16 @@ interface SummaryCardProps {
 }
 
 export default function SummaryCard({ title, value, iconName, isCurrency = true }: SummaryCardProps) {
+  const formattedValue = isCurrency ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value) : value;
+  const textColor = () => {
+    if (!isCurrency) return '';
+    if (title.toLowerCase().includes('balance')) {
+        return value >= 0 ? 'text-green-600' : 'text-red-600';
+    }
+    return '';
+  }
+
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -16,8 +26,8 @@ export default function SummaryCard({ title, value, iconName, isCurrency = true 
         <CategoryIcon name={iconName} className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">
-          {isCurrency ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value) : value}
+        <div className={`text-2xl font-bold ${textColor()}`}>
+          {formattedValue}
         </div>
       </CardContent>
     </Card>

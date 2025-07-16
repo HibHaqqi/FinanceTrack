@@ -6,7 +6,7 @@ import SummaryCard from './summary-card';
 import CategoryChart from './category-chart';
 import RecentTransactions from './recent-transactions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import CategoryIcon from './category-icon';
+import { Separator } from '@/components/ui/separator';
 
 interface DashboardClientProps {
   transactions: Transaction[];
@@ -41,6 +41,27 @@ export default function DashboardClient({
     }
     return { totalIncome, totalExpenses, balance: totalIncome - totalExpenses };
   }, [filteredTransactions]);
+
+  const walletSummaries = useMemo(() => {
+    return wallets.map(wallet => {
+      const walletTransactions = filteredTransactions.filter(tx => tx.walletId === wallet.id);
+      let income = 0;
+      let expenses = 0;
+      for (const tx of walletTransactions) {
+        if (tx.type === 'income') {
+          income += tx.amount;
+        } else {
+          expenses += tx.amount;
+        }
+      }
+      return {
+        ...wallet,
+        income,
+        expenses,
+        balance: income - expenses,
+      };
+    });
+  }, [wallets, filteredTransactions]);
 
   const years = useMemo(() => {
     const allYears = transactions.map(tx => new Date(tx.date).getFullYear());
@@ -87,8 +108,28 @@ export default function DashboardClient({
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <SummaryCard title="Total Income" value={totalIncome} iconName="TrendingUp" />
         <SummaryCard title="Total Expenses" value={totalExpenses} iconName="TrendingDown" />
-        <SummaryCard title="Balance" value={balance} iconName="Wallet" />
+        <SummaryCard title="Overall Balance" value={balance} iconName="Wallet" />
       </div>
+
+      <Separator />
+
+      <div className="space-y-6">
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight">Wallets</h2>
+        <div className="space-y-8">
+            {walletSummaries.map(wallet => (
+                <div key={wallet.id} className="space-y-4">
+                    <h3 className="text-lg font-semibold">{wallet.name}</h3>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <SummaryCard title="Income" value={wallet.income} iconName="TrendingUp" />
+                        <SummaryCard title="Expenses" value={wallet.expenses} iconName="TrendingDown" />
+                        <SummaryCard title="Balance" value={wallet.balance} iconName="Wallet" />
+                    </div>
+                </div>
+            ))}
+        </div>
+      </div>
+
+      <Separator />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">
