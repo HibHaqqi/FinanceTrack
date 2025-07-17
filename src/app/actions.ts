@@ -11,6 +11,26 @@ import {
 } from '@/lib/data';
 import type { Transaction, Wallet } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
+import { signIn } from 'next-auth/react';
+import prisma from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
+
+export async function register(values: any) {
+  try {
+    const hashedPassword = await bcrypt.hash(values.password, 10);
+    await prisma.user.create({
+      data: {
+        email: values.email,
+        password: hashedPassword,
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to register user.' };
+  }
+}
+
 
 export async function getCategorySuggestion(input: CategorizeTransactionInput) {
   try {

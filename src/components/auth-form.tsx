@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { register } from '@/app/actions';
+import { signIn } from 'next-auth/react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,6 +36,8 @@ interface AuthFormProps {
 }
 
 export default function AuthForm({ mode }: AuthFormProps) {
+  const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,9 +46,39 @@ export default function AuthForm({ mode }: AuthFormProps) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would handle login or registration logic
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isLogin) {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      });
+
+      if (result?.error) {
+        toast({
+          title: 'Error',
+          description: 'Invalid credentials.',
+          variant: 'destructive',
+        });
+      } else {
+        router.push('/');
+      }
+    } else {
+      const result = await register(values);
+      if (result.success) {
+        router.push('/login');
+        toast({
+          title: 'Success',
+          description: 'Account created successfully. Please log in.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+      }
+    }
   }
 
   const isLogin = mode === 'login';

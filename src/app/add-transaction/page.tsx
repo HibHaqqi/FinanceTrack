@@ -6,9 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import TransactionForm from '@/components/transaction-form';
 import { getWallets, getCategories } from '@/lib/data';
 import Header from '@/components/header';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 
 export default async function AddTransactionPage() {
-  const wallets = await getWallets();
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect('/login');
+  }
+  const wallets = await getWallets(session.user.id);
   const categories = await getCategories();
 
   return (

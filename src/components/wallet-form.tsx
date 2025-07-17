@@ -26,9 +26,10 @@ const formSchema = z.object({
 interface WalletFormProps {
   wallet?: Wallet;
   onSuccess?: () => void;
+  userId: string;
 }
 
-export default function WalletForm({ wallet, onSuccess }: WalletFormProps) {
+export default function WalletForm({ wallet, onSuccess, userId }: WalletFormProps) {
   const { toast } = useToast();
   const [isSubmitting, startSubmittingTransition] = useTransition();
   const isEditMode = !!wallet;
@@ -43,8 +44,8 @@ export default function WalletForm({ wallet, onSuccess }: WalletFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startSubmittingTransition(async () => {
       const result = isEditMode
-        ? await updateWallet({ ...values, id: wallet.id })
-        : await addWallet(values);
+        ? await updateWallet({ ...wallet, name: values.name })
+        : await addWallet({ name: values.name, userId });
 
       if (result.success) {
         toast({

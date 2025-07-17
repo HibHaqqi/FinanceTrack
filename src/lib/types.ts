@@ -1,21 +1,10 @@
+import { Transaction as PrismaTransaction, Wallet as PrismaWallet, Category as PrismaCategory } from '@prisma/client';
 
-export interface Transaction {
-  id: string;
+export interface Category extends PrismaCategory {}
+
+export interface Wallet extends PrismaWallet {}
+
+export interface Transaction extends Omit<PrismaTransaction, 'type'> {
   type: 'income' | 'expense';
-  description: string;
-  amount: number;
-  date: Date;
-  categoryId: string;
-  walletId: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-export interface Wallet {
-  id: string;
-  name: string;
+  category: Category;
 }

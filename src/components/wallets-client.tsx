@@ -33,9 +33,10 @@ interface WalletsClientProps {
   wallets: Wallet[];
   transactions: Transaction[];
   categories: Category[];
+  userId: string;
 }
 
-export default function WalletsClient({ wallets, transactions }: WalletsClientProps) {
+export default function WalletsClient({ wallets, transactions, userId }: WalletsClientProps) {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState<Record<string, boolean>>({});
 
@@ -57,6 +58,7 @@ export default function WalletsClient({ wallets, transactions }: WalletsClientPr
         income,
         expenses,
         transactionCount: walletTransactions.length,
+        userId: wallet.userId,
       };
     });
   }, [wallets, transactions]);
@@ -102,7 +104,7 @@ export default function WalletsClient({ wallets, transactions }: WalletsClientPr
               <DialogTitle>Add New Wallet</DialogTitle>
               <DialogDescription>Enter a name for your new wallet.</DialogDescription>
             </DialogHeader>
-            <WalletForm onSuccess={() => handleFormSuccess('new')} />
+            <WalletForm onSuccess={() => handleFormSuccess('new')} userId={userId} />
           </DialogContent>
         </Dialog>
       </div>
@@ -124,7 +126,7 @@ export default function WalletsClient({ wallets, transactions }: WalletsClientPr
                         <DialogTitle>Edit Wallet</DialogTitle>
                         <DialogDescription>Update the name of your wallet.</DialogDescription>
                       </DialogHeader>
-                      <WalletForm wallet={wallet} onSuccess={() => handleFormSuccess(wallet.id)} />
+                      <WalletForm wallet={wallet} onSuccess={() => handleFormSuccess(wallet.id)} userId={userId} />
                     </DialogContent>
                   </Dialog>
                   <AlertDialog>

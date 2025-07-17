@@ -2,10 +2,18 @@ import DashboardClient from '@/components/dashboard-client';
 import { getTransactions, getWallets, getCategories } from '@/lib/data';
 import Header from '@/components/header';
 
+import { getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
+
 export default async function DashboardPage() {
-  // In a real application, you would fetch this data based on the logged-in user.
-  const transactions = await getTransactions();
-  const wallets = await getWallets();
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect('/login');
+  }
+
+  const transactions = await getTransactions(session.user.id);
+  const wallets = await getWallets(session.user.id);
   const categories = await getCategories();
 
   return (
