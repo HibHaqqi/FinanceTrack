@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { CircleUser, LogOut, CirclePlus } from 'lucide-react';
+import { CircleUser, LogOut, CirclePlus, Landmark } from 'lucide-react';
 import Logo from './logo';
 
 export default function Header() {
@@ -36,6 +36,12 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                  <Link href="/wallets">
+                    <Landmark className="mr-2 h-4 w-4" />
+                    <span>Wallets</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />

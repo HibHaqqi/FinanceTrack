@@ -2,7 +2,7 @@ import type { Transaction, Wallet, Category } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
 
-export const wallets: Wallet[] = [
+let wallets: Wallet[] = [
   { id: 'wallet-1', name: 'Main Bank Account' },
   { id: 'wallet-2', name: 'Credit Card' },
   { id: 'wallet-3', name: 'Savings' },
@@ -289,6 +289,46 @@ export const deleteTransaction = async (id: string): Promise<boolean> => {
             const index = transactions.findIndex(t => t.id === id);
             if (index !== -1) {
                 transactions.splice(index, 1);
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, 100)
+    });
+}
+
+export const addWallet = async (wallet: Omit<Wallet, 'id'>): Promise<Wallet> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newWallet = { ...wallet, id: uuidv4() };
+            wallets.push(newWallet);
+            resolve(newWallet);
+        }, 100)
+    });
+}
+
+export const updateWallet = async (updatedWallet: Wallet): Promise<Wallet | null> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const index = wallets.findIndex(w => w.id === updatedWallet.id);
+            if (index !== -1) {
+                wallets[index] = updatedWallet;
+                resolve(updatedWallet);
+            } else {
+                resolve(null);
+            }
+        }, 100)
+    });
+}
+
+export const deleteWallet = async (id: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // Also remove transactions associated with this wallet
+            transactions = transactions.filter(t => t.walletId !== id);
+            const index = wallets.findIndex(w => w.id === id);
+            if (index !== -1) {
+                wallets.splice(index, 1);
                 resolve(true);
             } else {
                 resolve(false);

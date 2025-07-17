@@ -20,7 +20,6 @@ export default function DashboardClient({
   wallets,
   categories,
 }: DashboardClientProps) {
-  const [selectedWallet, setSelectedWallet] = useState<string>('all');
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
@@ -29,19 +28,17 @@ export default function DashboardClient({
       const txDate = new Date(tx.date);
       const yearMatch = txDate.getFullYear() === parseInt(selectedYear);
       const monthMatch = selectedMonth === 'all' || txDate.getMonth() + 1 === parseInt(selectedMonth);
-      const walletMatch = selectedWallet === 'all' || tx.walletId === selectedWallet;
-      return yearMatch && monthMatch && walletMatch;
+      return yearMatch && monthMatch;
     });
-  }, [transactions, selectedMonth, selectedYear, selectedWallet]);
+  }, [transactions, selectedMonth, selectedYear]);
 
   const allTimeTransactions = useMemo(() => {
     return transactions.filter(tx => {
         const txDate = new Date(tx.date);
         const yearMatch = txDate.getFullYear() === parseInt(selectedYear);
-        const walletMatch = selectedWallet === 'all' || tx.walletId === selectedWallet;
-        return yearMatch && walletMatch;
+        return yearMatch;
     })
-  }, [transactions, selectedYear, selectedWallet])
+  }, [transactions, selectedYear])
 
   const { totalIncome, totalExpenses, balance } = useMemo(() => {
     let totalIncome = 0;
@@ -56,29 +53,10 @@ export default function DashboardClient({
     return { totalIncome, totalExpenses, balance: totalIncome - totalExpenses };
   }, [filteredTransactions]);
 
-  const walletSummaries = useMemo(() => {
-    const activeWallets = selectedWallet === 'all' ? wallets : wallets.filter(w => w.id === selectedWallet);
-    return activeWallets.map(wallet => {
-      const walletTransactions = transactions.filter(tx => tx.walletId === wallet.id && new Date(tx.date).getFullYear() === parseInt(selectedYear));
-      let income = 0;
-      let expenses = 0;
-      for (const tx of walletTransactions) {
-        if (tx.type === 'income') {
-          income += tx.amount;
-        } else {
-          expenses += tx.amount;
-        }
-      }
-      return {
-        ...wallet,
-        income,
-        expenses,
-        balance: income - expenses,
-      };
-    });
-  }, [wallets, transactions, selectedYear, selectedWallet]);
-
   const years = useMemo(() => {
+    if (transactions.length === 0) {
+      return [new Date().getFullYear()];
+    }
     const allYears = transactions.map(tx => new Date(tx.date).getFullYear());
     return [...new Set(allYears)].sort((a,b) => b-a);
   },[transactions]);
@@ -96,19 +74,8 @@ export default function DashboardClient({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Overall Dashboard</h1>
         <div className="flex flex-wrap items-center gap-2">
-           <Select value={selectedWallet} onValueChange={setSelectedWallet}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select wallet" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Wallets</SelectItem>
-              {wallets.map(wallet => (
-                <SelectItem key={wallet.id} value={wallet.id}>{wallet.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select month" />
@@ -142,27 +109,6 @@ export default function DashboardClient({
           <BalanceChart transactions={allTimeTransactions} />
           <CategoryChart transactions={filteredTransactions} categories={categories} />
       </div>
-
-       {selectedWallet === 'all' && (
-        <>
-          <Separator />
-          <div className="space-y-6">
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight">Wallets</h2>
-            <div className="space-y-8">
-                {walletSummaries.map(wallet => (
-                    <div key={wallet.id} className="space-y-4">
-                        <h3 className="text-lg font-semibold">{wallet.name}</h3>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <SummaryCard title="Income" value={wallet.income} iconName="TrendingUp" />
-                            <SummaryCard title="Expenses" value={wallet.expenses} iconName="TrendingDown" />
-                            <SummaryCard title="Balance" value={wallet.balance} iconName="Wallet" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-          </div>
-        </>
-      )}
 
       <Separator />
 
