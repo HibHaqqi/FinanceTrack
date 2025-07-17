@@ -22,23 +22,26 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+  const [selectedWalletId, setSelectedWalletId] = useState<string>('all');
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(tx => {
       const txDate = new Date(tx.date);
       const yearMatch = txDate.getFullYear() === parseInt(selectedYear);
       const monthMatch = selectedMonth === 'all' || txDate.getMonth() + 1 === parseInt(selectedMonth);
-      return yearMatch && monthMatch;
+      const walletMatch = selectedWalletId === 'all' || tx.walletId === selectedWalletId;
+      return yearMatch && monthMatch && walletMatch;
     });
-  }, [transactions, selectedMonth, selectedYear]);
+  }, [transactions, selectedMonth, selectedYear, selectedWalletId]);
 
   const allTimeTransactions = useMemo(() => {
     return transactions.filter(tx => {
         const txDate = new Date(tx.date);
         const yearMatch = txDate.getFullYear() === parseInt(selectedYear);
-        return yearMatch;
+        const walletMatch = selectedWalletId === 'all' || tx.walletId === selectedWalletId;
+        return yearMatch && walletMatch;
     })
-  }, [transactions, selectedYear])
+  }, [transactions, selectedYear, selectedWalletId])
 
   const { totalIncome, totalExpenses, balance } = useMemo(() => {
     let totalIncome = 0;
@@ -74,8 +77,21 @@ export default function DashboardClient({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Overall Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          {selectedWalletId === 'all' ? 'Overall Dashboard' : `${wallets.find(w => w.id === selectedWalletId)?.name} Dashboard`}
+        </h1>
         <div className="flex flex-wrap items-center gap-2">
+           <Select value={selectedWalletId} onValueChange={setSelectedWalletId}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select wallet" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Wallets</SelectItem>
+              {wallets.map(wallet => (
+                <SelectItem key={wallet.id} value={wallet.id}>{wallet.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select month" />
