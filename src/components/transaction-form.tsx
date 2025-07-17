@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,8 +31,8 @@ import { cn } from '@/lib/utils';
 import { Calendar as CalendarIcon, Wand2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import type { Wallet, Category } from '@/lib/types';
-import { getCategorySuggestion } from '@/app/actions';
+import type { Wallet, Category, Transaction } from '@/lib/types';
+import { getCategorySuggestion, addTransaction, updateTransaction } from '@/app/actions';
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense'], { required_error: 'Please select a transaction type.' }),
@@ -46,21 +46,38 @@ const formSchema = z.object({
 interface TransactionFormProps {
   wallets: Wallet[];
   categories: Category[];
+  transaction?: Transaction;
+  onSuccess?: () => void;
 }
 
-export default function TransactionForm({ wallets, categories }: TransactionFormProps) {
+export default function TransactionForm({ wallets, categories, transaction, onSuccess }: TransactionFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSuggestionLoading, startSuggestionTransition] = useTransition();
+  const [isSubmitting, startSubmittingTransition] = useTransition();
+
+  const isEditMode = !!transaction;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: isEditMode ? {
+        ...transaction,
+        date: new Date(transaction.date)
+    } : {
       type: 'expense',
       description: '',
       date: new Date(),
     },
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      form.reset({
+        ...transaction,
+        date: new Date(transaction.date)
+      });
+    }
+  }, [transaction, isEditMode, form]);
 
   const handleSuggestion = async () => {
     const description = form.getValues('description');
@@ -97,14 +114,29 @@ export default function TransactionForm({ wallets, categories }: TransactionForm
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would handle the form submission, e.g., save to a database.
-    console.log(values);
-    toast({
-      title: 'Transaction Added!',
-      description: `${values.type === 'income' ? 'Income' : 'Expense'} of ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(values.amount)} recorded.`,
+    startSubmittingTransition(async () => {
+        const result = isEditMode
+            ? await updateTransaction({ ...values, id: transaction.id })
+            : await addTransaction(values);
+
+        if (result.success) {
+            toast({
+                title: isEditMode ? 'Transaction Updated!' : 'Transaction Added!',
+                description: `${values.type === 'income' ? 'Income' : 'Expense'} of ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(values.amount)} recorded.`,
+            });
+            if (onSuccess) {
+              onSuccess();
+            } else {
+              router.push('/');
+            }
+        } else {
+            toast({
+                title: 'Error',
+                description: result.error || 'An unexpected error occurred.',
+                variant: 'destructive',
+            });
+        }
     });
-    // In a real app, you might revalidate data and redirect
-    router.push('/');
   }
 
   return (
@@ -162,7 +194,7 @@ export default function TransactionForm({ wallets, categories }: TransactionForm
             <FormItem>
               <FormLabel>Amount</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="0.00" {...field} />
+                <Input type="number" step="0.01" placeholder="0.00" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -270,8 +302,8 @@ export default function TransactionForm({ wallets, categories }: TransactionForm
           )}
         />
 
-        <Button type="submit" className="w-full">
-          Add Transaction
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" /> : (isEditMode ? 'Update Transaction' : 'Add Transaction')}
         </Button>
       </form>
     </Form>

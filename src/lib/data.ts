@@ -1,4 +1,6 @@
 import type { Transaction, Wallet, Category } from './types';
+import { v4 as uuidv4 } from 'uuid';
+
 
 export const wallets: Wallet[] = [
   { id: 'wallet-1', name: 'Main Bank Account' },
@@ -26,7 +28,7 @@ const today = new Date();
 const currentYear = today.getFullYear();
 const currentMonth = today.getMonth();
 
-export const transactions: Transaction[] = [
+let transactions: Transaction[] = [
   // Current Month
   {
     id: 'txn-1',
@@ -245,13 +247,52 @@ export const transactions: Transaction[] = [
 
 // Mock API functions
 export const getTransactions = async (): Promise<Transaction[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve(transactions), 500));
+  // Return a copy to prevent direct mutation of the source array
+  return new Promise((resolve) => setTimeout(() => resolve([...transactions]), 100));
 };
 
 export const getWallets = async (): Promise<Wallet[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve(wallets), 500));
+  return new Promise((resolve) => setTimeout(() => resolve(wallets), 100));
 };
 
 export const getCategories = async (): Promise<Category[]> => {
-  return new Promise((resolve) => setTimeout(() => resolve(categories), 500));
+  return new Promise((resolve) => setTimeout(() => resolve(categories), 100));
 };
+
+export const addTransaction = async (transaction: Omit<Transaction, 'id'>): Promise<Transaction> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newTransaction = { ...transaction, id: uuidv4() };
+            transactions.push(newTransaction);
+            resolve(newTransaction);
+        }, 100)
+    });
+}
+
+export const updateTransaction = async (updatedTransaction: Transaction): Promise<Transaction | null> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const index = transactions.findIndex(t => t.id === updatedTransaction.id);
+            if (index !== -1) {
+                transactions[index] = updatedTransaction;
+                resolve(updatedTransaction);
+            } else {
+                resolve(null);
+            }
+        }, 100)
+    });
+}
+
+export const deleteTransaction = async (id: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const index = transactions.findIndex(t => t.id === id);
+            if (index !== -1) {
+                transactions.splice(index, 1);
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, 100)
+    });
+}
