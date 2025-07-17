@@ -43,7 +43,7 @@ export async function getCategorySuggestion(input: CategorizeTransactionInput) {
 }
 
 
-export async function addTransaction(transaction: Omit<Transaction, 'id'>) {
+export async function addTransaction(transaction: Omit<Transaction, 'id' | 'category' | 'createdAt' | 'updatedAt'>) {
     try {
         await dbAddTransaction(transaction);
         revalidatePath('/');
@@ -55,7 +55,7 @@ export async function addTransaction(transaction: Omit<Transaction, 'id'>) {
     }
 }
 
-export async function updateTransaction(transaction: Transaction) {
+export async function updateTransaction(transaction: Omit<Transaction, 'category' | 'createdAt' | 'updatedAt'>) {
     try {
         await dbUpdateTransaction(transaction);
         revalidatePath('/');

@@ -58,10 +58,7 @@ export default function CategoryChart({ transactions, categories }: CategoryChar
               </Pie>
               <Tooltip
                 formatter={(value: number) =>
-                  new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                  }).format(value)
+                  new Intl.NumberFormat('id-ID').format(value as number)
                 }
               />
               <Legend />

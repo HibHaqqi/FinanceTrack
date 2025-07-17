@@ -9,7 +9,7 @@ interface SummaryCardProps {
 }
 
 export default function SummaryCard({ title, value, iconName, isCurrency = true }: SummaryCardProps) {
-  const formattedValue = isCurrency ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value) : value;
+  const formattedValue = isCurrency ? new Intl.NumberFormat('id-ID').format(value) : value;
   const textColor = () => {
     if (!isCurrency) return '';
     if (title.toLowerCase().includes('balance')) {

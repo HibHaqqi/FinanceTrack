@@ -66,6 +66,9 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
     } : {
       type: 'expense',
       description: '',
+      amount: 0,
+      walletId: '',
+      categoryId: '',
       date: new Date(),
     },
   });
@@ -122,7 +125,7 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
         if (result.success) {
             toast({
                 title: isEditMode ? 'Transaction Updated!' : 'Transaction Added!',
-                description: `${values.type === 'income' ? 'Income' : 'Expense'} of ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(values.amount)} recorded.`,
+                description: `${values.type === 'income' ? 'Income' : 'Expense'} of ${new Intl.NumberFormat('id-ID').format(values.amount)} recorded.`,
             });
             if (onSuccess) {
               onSuccess();

@@ -3,8 +3,9 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 
-interface CategoryIconProps extends React.ComponentProps<typeof LucideIcons.Icon> {
+interface CategoryIconProps {
   name: string;
+  className?: string;
 }
 
 const CategoryIcon: React.FC<CategoryIconProps> = ({ name, ...props }) => {

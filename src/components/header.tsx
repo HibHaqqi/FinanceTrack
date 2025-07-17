@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import {
   DropdownMenu,
@@ -10,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { CircleUser, LogOut, CirclePlus, Landmark } from 'lucide-react';
 import Logo from './logo';
+import { signOut } from 'next-auth/react';
 
 export default function Header() {
   return (
@@ -45,7 +48,7 @@ export default function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

@@ -21,7 +21,7 @@ export const getCategories = async (): Promise<Category[]> => {
   return categories;
 };
 
-export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'category'>): Promise<Transaction> => {
+export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'category' | 'createdAt' | 'updatedAt'>): Promise<Transaction> => {
   const newTransaction = await prisma.transaction.create({
     data: {
       ...transaction,
@@ -32,7 +32,7 @@ export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'cate
   return {...newTransaction, type: newTransaction.type as 'income' | 'expense'};
 };
 
-export const updateTransaction = async (updatedTransaction: Omit<Transaction, 'category'>): Promise<Transaction | null> => {
+export const updateTransaction = async (updatedTransaction: Omit<Transaction, 'category' | 'createdAt' | 'updatedAt'>): Promise<Transaction | null> => {
   const transaction = await prisma.transaction.update({
     where: { id: updatedTransaction.id },
     data: {

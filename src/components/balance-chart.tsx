@@ -53,10 +53,7 @@ export default function BalanceChart({ transactions }: BalanceChartProps) {
               <YAxis />
               <Tooltip
                 formatter={(value: number) =>
-                  new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                  }).format(value)
+                  new Intl.NumberFormat('id-ID').format(value as number)
                 }
                 cursor={{ fill: 'hsl(var(--muted))' }}
               />

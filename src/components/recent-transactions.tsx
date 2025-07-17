@@ -127,10 +127,7 @@ export default function RecentTransactions({
                       }`}
                     >
                       {tx.type === 'income' ? '+' : '-'}
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                      }).format(tx.amount)}
+                      {new Intl.NumberFormat('id-ID').format(tx.amount)}
                     </TableCell>
                     <TableCell className="text-right">
                        <Dialog open={dialogOpen[tx.id]} onOpenChange={(open) => handleDialogChange(tx.id, open)}>
