@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
     "migrate": "prisma migrate deploy",
-    "migrate-categories": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/migrate-categories.ts"
+    "migrate-categories": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/migrate-categories.ts",
+    "update-categories": "node prisma/update-categories.js"
   },
   "prisma": {
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts"
