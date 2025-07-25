@@ -35,12 +35,22 @@ import type { Wallet, Category, Transaction } from '@/lib/types';
 import { getCategorySuggestion, addTransaction, updateTransaction } from '@/app/actions';
 
 const formSchema = z.object({
-  type: z.enum(['income', 'expense'], { required_error: 'Please select a transaction type.' }),
+  type: z.enum(['income', 'expense', 'transfer'], { required_error: 'Please select a transaction type.' }),
   description: z.string().min(2, { message: 'Description must be at least 2 characters.' }),
   amount: z.coerce.number().positive({ message: 'Please enter a positive amount.' }),
-  walletId: z.string({ required_error: 'Please select a wallet.' }),
+  walletId: z.string({ required_error: 'Please select a source wallet.' }),
+  destinationWalletId: z.string().optional(),
   categoryId: z.string({ required_error: 'Please select a category.' }),
   date: z.date({ required_error: 'Please select a date.' }),
+}).refine(data => {
+  // If type is transfer, destinationWalletId is required and must be different from walletId
+  if (data.type === 'transfer') {
+    return !!data.destinationWalletId && data.destinationWalletId !== data.walletId;
+  }
+  return true;
+}, {
+  message: "For transfers, you must select different source and destination wallets",
+  path: ["destinationWalletId"]
 });
 
 interface TransactionFormProps {
@@ -68,6 +78,7 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
       description: '',
       amount: 0,
       walletId: '',
+      destinationWalletId: '',
       categoryId: '',
       date: new Date(),
     },
@@ -123,9 +134,13 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
             : await addTransaction(values);
 
         if (result.success) {
+            let transactionTypeText = 'Expense';
+            if (values.type === 'income') transactionTypeText = 'Income';
+            if (values.type === 'transfer') transactionTypeText = 'Transfer';
+            
             toast({
                 title: isEditMode ? 'Transaction Updated!' : 'Transaction Added!',
-                description: `${values.type === 'income' ? 'Income' : 'Expense'} of ${new Intl.NumberFormat('id-ID').format(values.amount)} recorded.`,
+                description: `${transactionTypeText} of ${new Intl.NumberFormat('id-ID').format(values.amount)} recorded.`,
             });
             if (onSuccess) {
               onSuccess();
@@ -169,6 +184,12 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
                     </FormControl>
                     <FormLabel className="font-normal">Income</FormLabel>
                   </FormItem>
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="transfer" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Transfer</FormLabel>
+                  </FormItem>
                 </RadioGroup>
               </FormControl>
               <FormMessage />
@@ -210,7 +231,7 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
             name="walletId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Wallet</FormLabel>
+                <FormLabel>{form.getValues('type') === 'transfer' ? 'Source Wallet' : 'Wallet'}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -262,6 +283,36 @@ export default function TransactionForm({ wallets, categories, transaction, onSu
             )}
           />
         </div>
+
+        {form.watch('type') === 'transfer' && (
+          <FormField
+            control={form.control}
+            name="destinationWalletId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Destination Wallet</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select destination wallet" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {wallets
+                      .filter(wallet => wallet.id !== form.getValues('walletId'))
+                      .map((wallet) => (
+                        <SelectItem key={wallet.id} value={wallet.id}>
+                          {wallet.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>Select the wallet to transfer funds to</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

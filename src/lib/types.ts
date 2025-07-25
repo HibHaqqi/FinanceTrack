@@ -5,6 +5,7 @@ export interface Category extends PrismaCategory {}
 export interface Wallet extends PrismaWallet {}
 
 export interface Transaction extends Omit<PrismaTransaction, 'type'> {
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   category: Category;
+  destinationWalletId?: string;
 }
