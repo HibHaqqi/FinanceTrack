@@ -16,7 +16,7 @@ export default async function AddTransactionPage() {
     redirect('/login');
   }
   const wallets = await getWallets(session.user.id);
-  const categories = await getCategories();
+  const categories = await getCategories(session.user.id);
 
   return (
     <div className="flex min-h-screen w-full flex-col">
