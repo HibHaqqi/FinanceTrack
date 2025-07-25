@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { CircleUser, LogOut, CirclePlus, Landmark } from 'lucide-react';
+import { CircleUser, LogOut, CirclePlus, Landmark, Tag } from 'lucide-react';
 import Logo from './logo';
 import { signOut } from 'next-auth/react';
 
@@ -44,6 +44,12 @@ export default function Header() {
                   <Link href="/wallets">
                     <Landmark className="mr-2 h-4 w-4" />
                     <span>Wallets</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/categories">
+                    <Tag className="mr-2 h-4 w-4" />
+                    <span>Categories</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>

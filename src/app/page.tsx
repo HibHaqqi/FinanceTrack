@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   const transactions = await getTransactions(session.user.id);
   const wallets = await getWallets(session.user.id);
-  const categories = await getCategories();
+  const categories = await getCategories(session.user.id);
 
   return (
     <div className="flex min-h-screen w-full flex-col">

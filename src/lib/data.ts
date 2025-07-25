@@ -16,9 +16,47 @@ export const getWallets = async (userId: string): Promise<Wallet[]> => {
   return wallets;
 };
 
-export const getCategories = async (): Promise<Category[]> => {
-  const categories = await prisma.category.findMany();
-  return categories;
+export const getCategories = async (userId?: string): Promise<Category[]> => {
+  if (userId) {
+    // If userId is provided, filter categories by userId
+    const categories = await prisma.category.findMany({
+      where: { userId },
+    });
+    return categories;
+  } else {
+    // For backward compatibility, return all categories if userId is not provided
+    const categories = await prisma.category.findMany();
+    return categories;
+  }
+};
+
+export const addCategory = async (category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>): Promise<Category> => {
+  const newCategory = await prisma.category.create({
+    data: category,
+  });
+  return newCategory;
+};
+
+export const updateCategory = async (updatedCategory: Omit<Category, 'createdAt' | 'updatedAt'>): Promise<Category | null> => {
+  const category = await prisma.category.update({
+    where: { id: updatedCategory.id },
+    data: updatedCategory,
+  });
+  return category;
+};
+
+export const deleteCategory = async (id: string): Promise<boolean> => {
+  // Check if category is used in any transactions
+  const transactionsWithCategory = await prisma.transaction.findFirst({
+    where: { categoryId: id },
+  });
+
+  if (transactionsWithCategory) {
+    throw new Error('Cannot delete category that is used in transactions');
+  }
+
+  await prisma.category.delete({ where: { id } });
+  return true;
 };
 
 export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'category' | 'createdAt' | 'updatedAt'>): Promise<Transaction> => {

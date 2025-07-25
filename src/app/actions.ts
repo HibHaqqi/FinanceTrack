@@ -7,7 +7,11 @@ import {
   deleteTransaction as dbDeleteTransaction,
   addWallet as dbAddWallet,
   updateWallet as dbUpdateWallet,
-  deleteWallet as dbDeleteWallet
+  deleteWallet as dbDeleteWallet,
+  addCategory as dbAddCategory,
+  updateCategory as dbUpdateCategory,
+  deleteCategory as dbDeleteCategory,
+  getCategories as dbGetCategories
 } from '@/lib/data';
 import type { Transaction, Wallet } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
@@ -110,5 +114,51 @@ export async function deleteWallet(id: string) {
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Failed to delete wallet.' };
+    }
+}
+
+export async function getCategories(userId: string) {
+    try {
+        const categories = await dbGetCategories(userId);
+        return { success: true, data: categories };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to get categories.' };
+    }
+}
+
+export async function addCategory(category: { name: string; icon: string; userId: string }) {
+    try {
+        await dbAddCategory(category);
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to add category.' };
+    }
+}
+
+export async function updateCategory(category: { id: string; name: string; icon: string; userId: string }) {
+    try {
+        await dbUpdateCategory(category);
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to update category.' };
+    }
+}
+
+export async function deleteCategory(id: string) {
+    try {
+        await dbDeleteCategory(id);
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error(error);
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: 'Failed to delete category.' };
     }
 }
