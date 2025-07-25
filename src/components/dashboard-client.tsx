@@ -6,6 +6,7 @@ import SummaryCard from './summary-card';
 import CategoryChart from './category-chart';
 import BalanceChart from './balance-chart';
 import RecentTransactions from './recent-transactions';
+import ExportImport from './export-import';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 
@@ -112,6 +113,11 @@ export default function DashboardClient({
               ))}
             </SelectContent>
           </Select>
+          <ExportImport
+            walletId={selectedWalletId}
+            month={selectedMonth}
+            year={selectedYear}
+          />
         </div>
       </div>
 
