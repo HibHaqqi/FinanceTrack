@@ -1,5 +1,10 @@
--- First, we need to find a default user to assign to existing categories
--- This will use the first user in the database as the default
+-- Add the userId column to the Category table
+ALTER TABLE "Category" ADD COLUMN "userId" TEXT;
+
+-- Add a foreign key constraint to link Category to User
+ALTER TABLE "Category" ADD CONSTRAINT "Category_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Find or create a default user and update all categories
 DO $$
 DECLARE
     default_user_id TEXT;
@@ -26,5 +31,11 @@ BEGIN
     WHERE "userId" IS NULL;
 END $$;
 
--- Now make the userId column non-nullable
+-- Make the userId column non-nullable
 ALTER TABLE "Category" ALTER COLUMN "userId" SET NOT NULL;
+
+-- Drop the existing unique constraint on name
+ALTER TABLE "Category" DROP CONSTRAINT IF EXISTS "Category_name_key";
+
+-- Create the name_userId unique constraint
+CREATE UNIQUE INDEX "Category_name_userId_key" ON "Category"("name", "userId");
