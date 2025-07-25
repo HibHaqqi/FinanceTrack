@@ -26,8 +26,8 @@ model User {
 model Wallet {
   id           String        @id @default(uuid())
   name         String
-  userId       String?
-  user         User?         @relation(fields: [userId], references: [id])
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
   transactions Transaction[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -58,7 +58,7 @@ model Category {
   id           String        @id @default(uuid())
   name         String
   icon         String
-  userId       String
+  userId       String        // Now required
   user         User          @relation(fields: [userId], references: [id])
   transactions Transaction[]
   createdAt    DateTime      @default(now())
